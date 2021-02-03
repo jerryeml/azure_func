@@ -1,15 +1,18 @@
 azure_devops:
+  user_name: jerry_he@trendmicro.com
   url: https://dev.azure.com/
   org: infinite-wars
   project: v1-epp-saas-1.0
+  key_vault_name: kv-az-devops-service 
   lab_rg_name: rg-testing-env-lab
   monitor_pipeline_id: 3
   provision_release_id: 3
-  vg_id_one: 3
-  dg_id_int_one: 66
-  dg_id_dev_one: 67
-  dg_id_stg_one: 68
-  dg_id_prod_one: 69
+  dg_id_list:
+    - 66
+    - 67
+    - 68
+    - 69
+  minimun_available_count: 4
 
 log:
   path: C:\cicd_logs
