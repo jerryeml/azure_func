@@ -1,18 +1,52 @@
-azure_devops:
-  user_name: jerry_he@trendmicro.com
-  url: https://dev.azure.com/
+common_var:
   org: infinite-wars
   project: v1-epp-saas-1.0
-  key_vault_name: kv-az-devops-service 
-  lab_rg_name: rg-testing-env-lab
-  monitor_pipeline_id: 3
-  provision_release_id: 3
-  dg_id_list:
-    - 66
-    - 67
-    - 68
-    - 69
-  minimun_available_count: 4
+  log:
+    path: C:\cicd_logs
 
-log:
-  path: C:\cicd_logs
+circle_var:
+  aladdin:
+    user_name: jerry_he@trendmicro.com
+    url: https://dev.azure.com/
+    org: infinite-wars
+    project: v1-epp-saas-1.0
+    key_vault_name: kv-az-devops-service 
+    lab_rg_name: rg-testing-env-lab
+    provision_release_id: 3
+    dg_id_list:
+      - 66
+      - 67
+      - 68
+      - 69
+    minimun_available_count: 4
+
+  elpis:
+    user_name: jerry_he@trendmicro.com
+    url: https://dev.azure.com/
+    org: infinite-wars
+    project: v1-epp-saas-1.0
+    key_vault_name: kv-az-devops-service 
+    lab_rg_name: rg-testing-env-lab
+    provision_release_id: 3
+    dg_id_list:
+      - 66
+      - 67
+      - 68
+      - 69
+    minimun_available_count: 4
+
+  snorlax:
+    user_name: jerry_he@trendmicro.com
+    url: https://dev.azure.com/
+    org: infinite-wars
+    project: v1-epp-saas-1.0
+    key_vault_name: kv-az-devops-service 
+    lab_rg_name: rg-testing-env-lab
+    provision_release_id: 3
+    dg_id_list:
+      - 66
+      - 67
+      - 68
+      - 69
+    minimun_available_count: 4
+
