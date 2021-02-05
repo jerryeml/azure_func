@@ -52,10 +52,10 @@ class MutiRunner:
             result = az_devops_api._get_deployment_group_agent(dg_id)
             available_agent_count = jmespath.search("length(value[?contains(tags, 'available') == `true`].agent[?status == 'online'].id)", result)
             if available_agent_count < minimun_available_count:
-                print(f"Thread ID: {str(threading.get_ident())}, circle: {self.config.circle_name}, available agent count: {available_agent_count} is less than minimun_count:{minimun_available_count}, do provision")
+                print(f"Thread ID: {str(threading.get_ident())}, circle: {self.config.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count} is less than minimun_count:{minimun_available_count}, do provision")
                 is_provision += 1
             else:
-                print(f"Thread ID: {str(threading.get_ident())}, circle: {self.config.circle_name}, available agent count: {available_agent_count}, no need provision")
+                print(f"Thread ID: {str(threading.get_ident())}, circle: {self.config.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count}, no need provision")
 
     def trigger_provision_job(self, az_devops_api: AzureDevopsAPI, provision_pipeline_id: int):
         result = az_devops_api._trigger_release(provision_pipeline_id)
