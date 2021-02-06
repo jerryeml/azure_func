@@ -1,7 +1,7 @@
 import logging
 import datetime
 import azure.functions as func
-from utils.runner import MonitorConfig, MutiRunner
+from utils.runner import MonitorConfig, MutiRunner, config_root_logger
 from utils.helper import AzureDevopsAPI, load_global_params_config
 
 
@@ -12,6 +12,7 @@ def main(mytimer: func.TimerRequest) -> None:
     if mytimer.past_due:
         logging.info('The timer is past due!')
 
+    config_root_logger()
     logging.info('Python timer trigger function ran at %s', utc_timestamp)
     circle_list = list(load_global_params_config()['circle_var'].keys())
     logging.info(circle_list)

@@ -76,13 +76,13 @@ def config_root_logger():
         },
         'handlers': {
             'console': {
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
                 'formatter': 'root_formatter'
             }  # ,
             # 'log_file': {
             #     'class': 'logging.FileHandler',
-            #     'level': 'INFO',
+            #     'level': 'DEBUG',
             #     'filename': log_file,
             #     'formatter': 'root_formatter',
             # }
@@ -93,7 +93,7 @@ def config_root_logger():
                     'console'  # ,
                     # 'log_file',
                 ],
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'propagate': True
             }
         }
@@ -130,13 +130,9 @@ class MutiRunner:
             self.trigger_provision_job(az_devops_api, self.config.provision_release_id)
 
     def run(self):
-        config_root_logger()
-
-        logging.info('Info log entry in main thread.')
-        logging.debug('Debug log entry in main thread.')
+        # config_root_logger()
 
         for each in range(len(self.circle_list)):
-            # logging.info(f'Thread ID: {str(threading.get_ident())}, circle: {self.circle_list[int(each)]}')
             self.t_list.append(threading.Thread(target=self.do_something, args=str(each)))
             time.sleep(1)
             self.t_list[each].start()
