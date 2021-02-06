@@ -30,7 +30,7 @@ class MutiRunner:
         self.circle_list = circle_list
 
     def do_something(self, i):
-        print(f'No.{str(i)} Thread ID: {str(threading.get_ident())}, circle: {self.circle_list[int(i)]}')
+        logging.info(f'No.{str(i)} Thread ID: {str(threading.get_ident())}, circle: {self.circle_list[int(i)]}')
         self.config = MonitorConfig(self.circle_list[int(i)])
         az_devops_api = AzureDevopsAPI(self.config.user_name, self.config.az_pat.value)
 
@@ -52,10 +52,10 @@ class MutiRunner:
             result = az_devops_api._get_deployment_group_agent(dg_id)
             available_agent_count = jmespath.search("length(value[?contains(tags, 'available') == `true`].agent[?status == 'online'].id)", result)
             if available_agent_count < minimun_available_count:
-                print(f"Thread ID: {str(threading.get_ident())}, circle: {self.config.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count} is less than minimun_count:{minimun_available_count}, do provision")
+                logging.info(f"Thread ID: {str(threading.get_ident())}, circle: {self.config.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count} is less than minimun_count:{minimun_available_count}, do provision")
                 is_provision += 1
             else:
-                print(f"Thread ID: {str(threading.get_ident())}, circle: {self.config.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count}, no need provision")
+                logging.info(f"Thread ID: {str(threading.get_ident())}, circle: {self.config.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count}, no need provision")
 
     def trigger_provision_job(self, az_devops_api: AzureDevopsAPI, provision_pipeline_id: int):
         result = az_devops_api._trigger_release(provision_pipeline_id)
@@ -67,9 +67,9 @@ def main(mytimer: func.TimerRequest) -> None:
         tzinfo=datetime.timezone.utc).isoformat()
 
     if mytimer.past_due:
-        print('The timer is past due!')
+        logging.info('The timer is past due!')
 
-    print('Python timer trigger function ran at %s', utc_timestamp)
+    logging.info('Python timer trigger function ran at %s', utc_timestamp)
     circle_list = list(load_global_params_config()['circle_var'].keys())
     d = MutiRunner(circle_list)
     d.run()
