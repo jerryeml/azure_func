@@ -11,6 +11,7 @@ from utils.const import CommonResult
 
 
 def load_global_params_config(py_root_path=dirname(__file__)):
+    logging.basicConfig(level=logging.INFO, format="(%(threadName)-10s : %(message)s")
     config_path = os.path.join(py_root_path,
                                "global_params.yaml")
     with open(config_path) as f:

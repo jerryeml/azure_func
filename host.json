@@ -3,11 +3,8 @@
   "logging": {
     "fileLoggingMode": "always",
     "logLevel": {
-      "default": "Information",
-      "Host.Results": "Error",
-      "Function": "Trace",
-      "Function.monitor_schedule_trigger": "Trace",
-      "Host.Aggregator": "Trace"
+      "default": "Trace",
+      "Function.monitor_schedule_trigger": "Trace"
     },
     "applicationInsights": {
       "samplingSettings": {
