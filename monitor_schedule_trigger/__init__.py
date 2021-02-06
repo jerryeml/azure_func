@@ -21,7 +21,4 @@ def main(mytimer: func.TimerRequest) -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="(%(threadName)-10s : %(message)s")
-    circle_list = list(load_global_params_config()['circle_var'].keys())
-    d = MutiRunner(circle_list)
-    d.run()
+    pass
