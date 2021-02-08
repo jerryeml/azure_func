@@ -10,14 +10,57 @@ from msrest.authentication import BasicAuthentication
 from utils.const import CommonResult
 
 
+def config_root_logger():
+    """
+    Reference: https://stackoverflow.com/questions/22643337/per-thread-logging-in-python
+    """
+    log_file = '/perThreadLogging.log'
+
+    formatter = "%(asctime)-15s" \
+                "| %(threadName)-11s" \
+                "| %(levelname)-5s" \
+                "| %(message)s"
+
+    logging.config.dictConfig({
+        'version': 1,
+        'formatters': {
+            'root_formatter': {
+                'format': formatter
+            }
+        },
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'root_formatter'
+            },
+            'log_file': {
+                'class': 'logging.FileHandler',
+                'level': 'DEBUG',
+                'filename': log_file,
+                'formatter': 'root_formatter',
+            }
+        },
+        'loggers': {
+            '': {
+                'handlers': [
+                    'console',
+                    'log_file',
+                ],
+                'level': 'DEBUG',
+                'propagate': True
+            }
+        }
+    })
+
+
 def load_global_params_config(py_root_path=dirname(__file__)):
-    logging.basicConfig(level=logging.INFO, format="(%(threadName)-10s : %(message)s")
     config_path = os.path.join(py_root_path,
-                               "global_params.yaml")
+                               "circles_params.yaml")
     with open(config_path) as f:
         global_params = yaml.load(f.read(), Loader=yaml.SafeLoader)
 
-    logging.info(f"loading global params config: {config_path}")
+    logging.debug(f"loading global params config: {config_path}")
     return global_params
 
 
@@ -32,14 +75,14 @@ class AzureDevopsAPI(object):
     def _get_deployment_group_agent(self, deployment_group_id):
         url = f"https://dev.azure.com/{self.organization}/{self.project}/_apis/distributedtask/deploymentgroups/{deployment_group_id}/targets/?api-version=6.0-preview.1"
         response = requests.get(url, auth=HTTPBasicAuth(self.username, self.az_pat))
-        logging.info("response status_code: {}".format(response.status_code))
+        logging.debug("response status_code: {}".format(response.status_code))
         assert response.status_code == 200
         return response.json()
 
     def _del_deployment_group_agent(self, target_id, deployment_group_id):
         url = f"https://dev.azure.com/{self.organization}/{self.project}/_apis/distributedtask/deploymentgroups/{deployment_group_id}/targets/{target_id}?api-version=6.0-preview.1"
         response = requests.delete(url, auth=HTTPBasicAuth(self.username, self.az_pat))
-        logging.info("delete agent in deployment group status_code: {}".format(response.status_code))
+        logging.debug("delete agent in deployment group status_code: {}".format(response.status_code))
         assert response.status_code == 200 or response.status_code == 204
         return CommonResult.Success
 
@@ -57,14 +100,14 @@ class AzureDevopsAPI(object):
         if not isinstance(payload, list):
             raise TypeError(f"payload type expect list but actual: {type(payload)}")
         response = requests.patch(url, json=payload, auth=HTTPBasicAuth(self.username, self.az_pat))
-        logging.info("update agent tags in deployment group status_code: {}".format(response.status_code))
+        logging.debug("update agent tags in deployment group status_code: {}".format(response.status_code))
         assert response.status_code == 200
         return CommonResult.Success
 
     def _get_release_definition(self, release_definition_id: int):
         url = f"https://vsrm.dev.azure.com/{self.organization}/{self.project}/_apis/release/definitions/{release_definition_id}?api-version=6.0"
         response = requests.get(url, auth=HTTPBasicAuth(self.username, self.az_pat))
-        logging.info("response status_code: {}".format(response.status_code))
+        logging.debug("response status_code: {}".format(response.status_code))
         assert response.status_code == 200
         return response.json()
 
@@ -73,7 +116,7 @@ class AzureDevopsAPI(object):
         payload = {"definitionId": release_definition_id}
 
         response = requests.post(url, json=payload, auth=HTTPBasicAuth(self.username, self.az_pat))
-        logging.info("response status_code: {}".format(response.status_code))
+        logging.info("trigger release response status_code: {}".format(response.status_code))
         assert response.status_code == 200
         return CommonResult.Success
 
