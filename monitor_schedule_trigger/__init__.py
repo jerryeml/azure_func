@@ -5,7 +5,7 @@ import threading
 import logging
 import datetime
 import azure.functions as func
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 from utils.helper import AzureDevopsAPI, load_global_params_config
 
 
@@ -25,10 +25,10 @@ class MonitorUtil(object):
             result = self.az_devops_api._get_deployment_group_agent(dg_id)
             available_agent_count = jmespath.search("length(value[?contains(tags, 'available') == `true`].agent[?status == 'online'].id)", result)
             if available_agent_count < self.minimun_available_count:
-                logging.info(f"deployment group: {dg_id}, available agent count: {available_agent_count} is less than minimun_count:{self.minimun_available_count}, do provision")
+                logging.info(f"Circle: {self.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count} is less than minimun_count:{self.minimun_available_count}, do provision")
                 self.is_provision += 1
             else:
-                logging.info(f"deployment group: {dg_id}, available agent count: {available_agent_count}, no need provision")
+                logging.info(f"Circle: {self.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count}, no need provision")
 
         if self.is_provision > 0:
             return True
@@ -38,22 +38,19 @@ class MonitorUtil(object):
     def trigger_provision_job(self):
         result = self.az_devops_api._trigger_release(self.provision_release_id)
         assert result == 0
-        logging.info(f"Trigger provision_release_id:{self.provision_release_id} successfully")
+        logging.info(f"Circle: {self.circle_name}, Trigger provision_release_id:{self.provision_release_id} successfully")
         return True
 
 
 def main(mytimer: func.TimerRequest) -> None:
-    utc_timestamp = datetime.datetime.utcnow().replace(
-        tzinfo=datetime.timezone.utc).isoformat()
+    load_dotenv()
+    utc_timestamp = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).isoformat()
 
     if mytimer.past_due:
         logging.info('The timer is past due!')
 
-    logging.info(f'Python timer trigger function ran at {utc_timestamp}')
-
-    load_dotenv()
     circle_list = list(load_global_params_config()['circle_var'].keys())
-    logging.info(circle_list)
+    logging.info(f'Python timer trigger function ran at {utc_timestamp}, circle: {circle_list}')
 
     for circle in circle_list:
         logging.info(f"Prepare to monitor resource in {circle}")
@@ -63,4 +60,4 @@ def main(mytimer: func.TimerRequest) -> None:
             result = monitor_circle.trigger_provision_job()
             assert result is True
 
-        logging.info("Function complete")
+        logging.info(f"Circle: {circle}, Function complete")
