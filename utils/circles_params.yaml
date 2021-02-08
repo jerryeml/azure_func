@@ -12,7 +12,7 @@ circle_var:
     project: v1-epp-saas-1.0
     key_vault_name: kv-az-devops-service 
     lab_rg_name: rg-testing-env-lab
-    provision_release_id: 3
+    provision_release_id: 4
     dg_id_list:
       - 66
       - 67
@@ -27,7 +27,7 @@ circle_var:
     project: v1-epp-saas-1.0
     key_vault_name: kv-az-devops-service 
     lab_rg_name: rg-testing-env-lab
-    provision_release_id: 3
+    provision_release_id: 4
     dg_id_list:
       - 66
       - 67
@@ -42,7 +42,7 @@ circle_var:
     project: v1-epp-saas-1.0
     key_vault_name: kv-az-devops-service 
     lab_rg_name: rg-testing-env-lab
-    provision_release_id: 3
+    provision_release_id: 4
     dg_id_list:
       - 66
       - 67
