@@ -6,6 +6,7 @@ azure-functions
 azure-keyvault-secrets
 azure-identity
 azure-devops
+python-dotenv
 pyyaml
 requests
 pylint

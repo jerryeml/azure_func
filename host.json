@@ -3,10 +3,10 @@
   "logging": {
     "fileLoggingMode": "always",
     "logLevel": {
-      "default": "Information",
-      "Host.Results": "Error",
       "Function": "Trace",
       "Function.monitor_schedule_trigger": "Trace",
+      "default": "Information",
+      "Host.Results": "Error",
       "Host.Aggregator": "Trace"
     },
     "applicationInsights": {
