@@ -10,8 +10,6 @@ from os.path import dirname
 from collections import OrderedDict
 from requests.auth import HTTPBasicAuth
 from azure.devops.connection import Connection
-from azure.devops.v6_0.pipelines.models import RunPipelineParameters, Variable
-from azure.devops.v6_0.release.models import ReleaseStartMetadata
 from msrest.authentication import BasicAuthentication
 from utils.const import CommonResult
 
@@ -155,7 +153,6 @@ class AzureDevopsAPI(object):
     def __init__(self, username, az_pat):
         self.username = username
         self.az_pat = az_pat
-        self.credentials = BasicAuthentication(self.username, self.az_pat)
         self.organization_url = load_global_params_config()['common_var']['url']
         self.organization = load_global_params_config()['common_var']['org']
         self.project = load_global_params_config()['common_var']['project']
@@ -223,6 +220,9 @@ class TaskAgent(object):
         self.connection = Connection(base_url=self.organization_url, creds=self.credentials)
         self.task_agent = self.connection.clients_v6_0.get_task_agent_client()
 
+    def add_deployment_group(self):
+        pass
+
     def del_deployment_group_agent(self, target_id, deployment_group_id) -> None:
         self.task_agent.delete_deployment_target(self.project, deployment_group_id, target_id)
 
@@ -263,6 +263,18 @@ class Pipeline(object):
         return responses
 
     def trigger_pipeline(self, run_parameters, pipeline_id) -> dict:
+        """
+        run_params = {
+            'variables': {
+                'app_name':
+                {
+                    'isSecret': False,
+                    'value': 'hahahello'
+                }
+            }
+        }
+        """
+
         responses = self.pipeline.run_pipeline(run_parameters, self.project, pipeline_id)
         return responses
 
@@ -300,22 +312,4 @@ class AzureCLI(object):
 
 
 if __name__ == "__main__":
-    az_devops_api = Pipeline("jerry_he@trendmicro.com", "fuq7u2aphiyh75bkxzf4f6bivltayima476jhna4asuyrdenvxua")
-
-    run_params = {
-        'variables': {
-            'app_name':
-                {
-                    'isSecret': False,
-                    'value': 'hahahello'
-                }
-        }
-    }
-
-    responses = az_devops_api.trigger_pipeline(run_parameters=run_params, pipeline_id=21)
-    print(responses)
-    # responses = az_devops_api.get_pipeline(21)
-    # print(responses.configuration)
-    # for each in responses:
-    #     if "available" in each.tags and "offline" in each.agent.status:
-    #         print(each.id)
+    pass
