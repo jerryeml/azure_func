@@ -4,7 +4,8 @@
 
 azure-functions
 azure-devops
-azure-cli
+azure-identity
+azure-mgmt-devtestlabs
 python-dotenv
 pyyaml
 requests

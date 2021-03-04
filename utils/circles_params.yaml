@@ -2,6 +2,7 @@ common_var:
   url: https://dev.azure.com/infinite-wars/
   org: infinite-wars
   project: v1-epp-saas-1.0
+  subscription_id: df518fea-1410-40b9-8d30-51d2c9eab0d7
   log:
     path: C:\cicd_logs
 circle_var:

@@ -12,6 +12,8 @@ from requests.auth import HTTPBasicAuth
 from azure.devops.connection import Connection
 from msrest.authentication import BasicAuthentication
 from utils.const import CommonResult
+from azure.identity import ClientSecretCredential
+from azure.mgmt.devtestlabs import DevTestLabsClient
 
 
 def config_root_logger():
@@ -65,7 +67,8 @@ def deploy_command_no_return_result(command=None):
     @return: 0 success; 1 fail
     """
 
-    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True, universal_newlines=True)
+    process = subprocess.Popen(command, stdin=subprocess.PIPE,
+                               stdout=subprocess.PIPE, shell=True, universal_newlines=True)
     process.wait()
     if process.returncode != 0:
         logging.error(f"process return code: {process.returncode}")
@@ -81,26 +84,41 @@ def deploy_command_return_result(command=None):
     @return: list type of command result
     """
 
-    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True, universal_newlines=True)
+    process = subprocess.Popen(command, stdin=subprocess.PIPE,
+                               stdout=subprocess.PIPE, shell=True, universal_newlines=True)
     return_code = process.communicate(input=None)[0]
     process.wait()
     # logging.debug("Retunr value: %s, type: %s", return_code, type(return_code))  # type str
     if process.returncode != 0:
-        logging.error(f"process return code: {process.returncode}, return result: {return_code}")
+        logging.error(
+            f"process return code: {process.returncode}, return result: {return_code}")
         raise subprocess.CalledProcessError(process.returncode, command)
 
     transform_json = json.loads(return_code)
     return transform_json
 
 
-def load_global_params_config(py_root_path=dirname(__file__)):
-    config_path = os.path.join(py_root_path,
-                               "circles_params.yaml")
+def load_global_params_config(py_root_path=dirname(__file__)) -> dict:
+    config_path = os.path.join(py_root_path, "circles_params.yaml")
     with open(config_path) as f:
         global_params = yaml.load(f.read(), Loader=yaml.SafeLoader)
 
     logging.debug(f"loading global params config: {config_path}")
     return global_params
+
+
+def load_app_config_to_obejct(py_root_path=dirname(__file__)) -> object:
+    config_path = os.path.join(py_root_path, "circles_params.yaml")
+    with open(config_path) as f:
+        global_params = yaml.load(f.read(), Loader=yaml.SafeLoader)
+
+    logging.debug(f"loading global params config: {config_path}")
+
+    class config_obj(object):
+        def __init__(self, dict_tpye):
+            self.__dict__.update(dict_tpye)
+
+    return json.loads(json.dumps(global_params), object_hook=config_obj)
 
 
 def modify_yaml_config(sections, key, value, py_root_path=dirname(__file__)):
@@ -153,21 +171,25 @@ class AzureDevopsAPI(object):
     def __init__(self, username, az_pat):
         self.username = username
         self.az_pat = az_pat
-        self.organization_url = load_global_params_config()['common_var']['url']
+        self.organization_url = load_global_params_config()[
+            'common_var']['url']
         self.organization = load_global_params_config()['common_var']['org']
         self.project = load_global_params_config()['common_var']['project']
 
     def _get_deployment_group_agent(self, deployment_group_id):
         url = f"https://dev.azure.com/{self.organization}/{self.project}/_apis/distributedtask/deploymentgroups/{deployment_group_id}/targets/?api-version=6.0-preview.1"
-        response = requests.get(url, auth=HTTPBasicAuth(self.username, self.az_pat))
+        response = requests.get(
+            url, auth=HTTPBasicAuth(self.username, self.az_pat))
         logging.debug("response status_code: {}".format(response.status_code))
         assert response.status_code == 200
         return response.json()
 
     def _del_deployment_group_agent(self, target_id, deployment_group_id):
         url = f"https://dev.azure.com/{self.organization}/{self.project}/_apis/distributedtask/deploymentgroups/{deployment_group_id}/targets/{target_id}?api-version=6.0-preview.1"
-        response = requests.delete(url, auth=HTTPBasicAuth(self.username, self.az_pat))
-        logging.debug("delete agent in deployment group status_code: {}".format(response.status_code))
+        response = requests.delete(
+            url, auth=HTTPBasicAuth(self.username, self.az_pat))
+        logging.debug("delete agent in deployment group status_code: {}".format(
+            response.status_code))
         assert response.status_code == 200 or response.status_code == 204
         return CommonResult.Success
 
@@ -183,15 +205,19 @@ class AzureDevopsAPI(object):
         """
         url = f"https://dev.azure.com/{self.organization}/{self.project}/_apis/distributedtask/deploymentgroups/{deployment_group_id}/targets?api-version=6.0-preview.1"
         if not isinstance(payload, list):
-            raise TypeError(f"payload type expect list but actual: {type(payload)}")
-        response = requests.patch(url, json=payload, auth=HTTPBasicAuth(self.username, self.az_pat))
-        logging.debug("update agent tags in deployment group status_code: {}".format(response.status_code))
+            raise TypeError(
+                f"payload type expect list but actual: {type(payload)}")
+        response = requests.patch(
+            url, json=payload, auth=HTTPBasicAuth(self.username, self.az_pat))
+        logging.debug("update agent tags in deployment group status_code: {}".format(
+            response.status_code))
         assert response.status_code == 200
         return CommonResult.Success
 
     def _get_release_definition(self, release_definition_id: int):
         url = f"https://vsrm.dev.azure.com/{self.organization}/{self.project}/_apis/release/definitions/{release_definition_id}?api-version=6.0"
-        response = requests.get(url, auth=HTTPBasicAuth(self.username, self.az_pat))
+        response = requests.get(
+            url, auth=HTTPBasicAuth(self.username, self.az_pat))
         logging.debug("response status_code: {}".format(response.status_code))
         assert response.status_code == 200
         return response.json()
@@ -200,8 +226,10 @@ class AzureDevopsAPI(object):
         url = f"https://vsrm.dev.azure.com/{self.organization}/{self.project}/_apis/release/releases?api-version=6.0"
         payload = {"definitionId": release_definition_id}
 
-        response = requests.post(url, json=payload, auth=HTTPBasicAuth(self.username, self.az_pat))
-        logging.info("trigger release response status_code: {}".format(response.status_code))
+        response = requests.post(
+            url, json=payload, auth=HTTPBasicAuth(self.username, self.az_pat))
+        logging.info("trigger release response status_code: {}".format(
+            response.status_code))
         assert response.status_code == 200
         return CommonResult.Success
 
@@ -213,21 +241,25 @@ class TaskAgent(object):
         """
         self.username = username
         self.az_pat = az_pat
-        self.organization_url = load_global_params_config()['common_var']['url']
+        self.organization_url = load_global_params_config()[
+            'common_var']['url']
         self.organization = load_global_params_config()['common_var']['org']
         self.project = load_global_params_config()['common_var']['project']
         self.credentials = BasicAuthentication(self.username, self.az_pat)
-        self.connection = Connection(base_url=self.organization_url, creds=self.credentials)
+        self.connection = Connection(
+            base_url=self.organization_url, creds=self.credentials)
         self.task_agent = self.connection.clients_v6_0.get_task_agent_client()
 
     def add_deployment_group(self):
         pass
 
     def del_deployment_group_agent(self, target_id, deployment_group_id) -> None:
-        self.task_agent.delete_deployment_target(self.project, deployment_group_id, target_id)
+        self.task_agent.delete_deployment_target(
+            self.project, deployment_group_id, target_id)
 
     def get_deployment_group_agents(self, deployment_group_id) -> list:
-        responses = self.task_agent.get_deployment_targets(project=self.project, deployment_group_id=deployment_group_id)
+        responses = self.task_agent.get_deployment_targets(
+            project=self.project, deployment_group_id=deployment_group_id)
         return responses
 
     def update_tags_of_deployment_group_agent(self, deployment_group_id, payload: dict):
@@ -240,7 +272,8 @@ class TaskAgent(object):
                              "newTag5248232320667898861"],
                     "id": 83}]
         """
-        responses = self.task_agent.update_deployment_targets(machines=payload, project=self.project, deployment_group_id=deployment_group_id)
+        responses = self.task_agent.update_deployment_targets(
+            machines=payload, project=self.project, deployment_group_id=deployment_group_id)
         return responses
 
 
@@ -251,11 +284,13 @@ class Pipeline(object):
         """
         self.username = username
         self.az_pat = az_pat
-        self.organization_url = load_global_params_config()['common_var']['url']
+        self.organization_url = load_global_params_config()[
+            'common_var']['url']
         self.organization = load_global_params_config()['common_var']['org']
         self.project = load_global_params_config()['common_var']['project']
         self.credentials = BasicAuthentication(self.username, self.az_pat)
-        self.connection = Connection(base_url=self.organization_url, creds=self.credentials)
+        self.connection = Connection(
+            base_url=self.organization_url, creds=self.credentials)
         self.pipeline = self.connection.clients_v6_0.get_pipelines_client()
 
     def get_pipeline(self, pipeline_id) -> dict:
@@ -275,7 +310,8 @@ class Pipeline(object):
         }
         """
 
-        responses = self.pipeline.run_pipeline(run_parameters, self.project, pipeline_id)
+        responses = self.pipeline.run_pipeline(
+            run_parameters, self.project, pipeline_id)
         return responses
 
 
@@ -283,32 +319,28 @@ class Release(object):
     def __init__(self, username, az_pat):
         self.username = username
         self.az_pat = az_pat
-        self.organization_url = load_global_params_config()['common_var']['url']
+        self.organization_url = load_global_params_config()[
+            'common_var']['url']
         self.organization = load_global_params_config()['common_var']['org']
         self.project = load_global_params_config()['common_var']['project']
         self.credentials = BasicAuthentication(self.username, self.az_pat)
-        self.connection = Connection(base_url=self.organization_url, creds=self.credentials)
+        self.connection = Connection(
+            base_url=self.organization_url, creds=self.credentials)
         self.release = self.connection.clients_v6_0.get_release_client()
 
 
-class AzureCLI(object):
-    def __init__(self, sp_client_id, sp_pwd, tenant_id):
+class AzureUtil(object):
+    def __init__(self, sp_client_id, sp_pwd, tenant_id, subscription_id):
         self.sp_client_id = sp_client_id
         self.sp_pwd = sp_pwd
         self.tenant_id = tenant_id
-        self.az_login()
+        self.subscription_id = subscription_id
+        self.credentials = ClientSecretCredential(self.tenant_id, self.sp_client_id, self.sp_pwd)
 
-    def az_login(self):
-        command = f"az login --service-principal --username {self.sp_client_id} --password {self.sp_pwd} --tenant {self.tenant_id}"
-        login_result = deploy_command_return_result(command=command)
-        logging.info(f"login_result: {login_result}")
-        assert type(login_result) == list
-        logging.info("az_login successfully")
-
-    def list_vm_in_dtl(self, lab_name, rg_name, query_jmespath="[]"):
-        command = f'az lab vm list --lab-name {lab_name} --resource-group {rg_name} --all --query "{query_jmespath}" --verbose'
-        list_result = deploy_command_return_result(command=command)
-        return list_result
+    def list_vm_in_dtl(self, lab_name, rg_name) -> object:
+        devtestlabs_client = DevTestLabsClient(credential=self.credentials, subscription_id=self.subscription_id)
+        vms_obj = devtestlabs_client.virtual_machines.list(rg_name, lab_name)
+        return vms_obj
 
 
 if __name__ == "__main__":
