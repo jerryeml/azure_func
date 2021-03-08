@@ -114,8 +114,3 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     except Exception as e:
         return func.HttpResponse(f"Meet Error {e}.", status_code=500)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-    pass

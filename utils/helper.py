@@ -284,13 +284,11 @@ class Pipeline(object):
         """
         self.username = username
         self.az_pat = az_pat
-        self.organization_url = load_global_params_config()[
-            'common_var']['url']
+        self.organization_url = load_global_params_config()['common_var']['url']
         self.organization = load_global_params_config()['common_var']['org']
         self.project = load_global_params_config()['common_var']['project']
         self.credentials = BasicAuthentication(self.username, self.az_pat)
-        self.connection = Connection(
-            base_url=self.organization_url, creds=self.credentials)
+        self.connection = Connection(base_url=self.organization_url, creds=self.credentials)
         self.pipeline = self.connection.clients_v6_0.get_pipelines_client()
 
     def get_pipeline(self, pipeline_id) -> dict:
@@ -310,8 +308,7 @@ class Pipeline(object):
         }
         """
 
-        responses = self.pipeline.run_pipeline(
-            run_parameters, self.project, pipeline_id)
+        responses = self.pipeline.run_pipeline(run_parameters, self.project, pipeline_id)
         return responses
 
 

@@ -5,7 +5,7 @@
 azure-functions
 azure-devops
 azure-identity
-azure-mgmt-devtestlabs
+azure-mgmt-devtestlabs==9.0.0
 python-dotenv
 pyyaml
 requests
