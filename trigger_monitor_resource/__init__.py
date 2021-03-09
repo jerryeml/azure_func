@@ -3,6 +3,7 @@ import datetime
 import logging
 import jmespath
 import azure.functions as func
+from collections import defaultdict
 from subprocess import CalledProcessError
 from dotenv import load_dotenv, dotenv_values
 from utils.helper import TaskAgent, Pipeline, AzureUtil, load_global_params_config
@@ -67,6 +68,25 @@ class MonitorUtil(object):
             else:
                 logging.info(f"Circle: {self.circle_name}, deployment group: {dg_id}, available agent count: {available_agent_count}, no need provision")
 
+    def monitor_az_agent_in_ag(self):
+        """
+        """
+        self.task_agent = TaskAgent(self.user_name, self.az_pat)
+        self.ap_id_list = load_global_params_config()['circle_var'][self.circle_name]['ap_id_list']
+
+        for env, ap_id in self.ap_id_list.items():
+            result = self.task_agent.get_agent_pool_agents(ap_id)
+            available_agent_count = 0
+            for each in result:
+                if "available" in each.tags and "online" in each.agent.status:
+                    available_agent_count += 1
+
+            if available_agent_count <= self.minimun_available_count:
+                logging.info(f"Circle: {self.circle_name}, env: {env}, agent pool: {ap_id}, less than minimun_count:{self.minimun_available_count}, do provision")
+                self.trigger_provision_job(env)
+            else:
+                logging.info(f"Circle: {self.circle_name}, env: {env}, agent pool: {ap_id}, available agent count: {available_agent_count}, no need provision")
+
     def trigger_provision_job(self, stage):
         """
         trigger provision vm in specific dev test lab
@@ -106,7 +126,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         for circle in circle_list:
             logging.info(f"Prepare to monitor resource in {circle}")
             monitor_circle = MonitorUtil(circle)
-            monitor_circle.monitor_vm_in_dtl()
+            monitor_circle.monitor_az_agent_in_ag()
 
             logging.info(f"Circle: {circle}, Function complete")
 
@@ -114,3 +134,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     except Exception as e:
         return func.HttpResponse(f"Meet Error {e}.", status_code=500)
+
+
+if __name__ == "__main__":
+    pass

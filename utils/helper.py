@@ -250,6 +250,10 @@ class TaskAgent(object):
             base_url=self.organization_url, creds=self.credentials)
         self.task_agent = self.connection.clients_v6_0.get_task_agent_client()
 
+    def get_agent_pool_agents(self, agent_pool_id) -> list:
+        responses = self.task_agent.get_agents(pool_id=agent_pool_id)
+        return responses
+
     def add_deployment_group(self):
         pass
 
