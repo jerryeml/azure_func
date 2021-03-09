@@ -24,10 +24,10 @@ class InfraUtil(object):
         logging.info(f"Deployment group name: {self.dg_circle}")
 
     def generate_circle_agent_pool_name(self, circle):
-        self.ap_circle = ["AG-" + circle.upper() + "-INT",
-                          "AG-" + circle.upper() + "-DEV",
-                          "AG-" + circle.upper() + "-STG",
-                          "AG-" + circle.upper() + "-PROD"]
+        self.ap_circle = ["AP-" + circle.upper() + "-INT",
+                          "AP-" + circle.upper() + "-DEV",
+                          "AP-" + circle.upper() + "-STG",
+                          "AP-" + circle.upper() + "-PROD"]
         self.ap_id = []
         logging.info(f"Agent pool name: {self.ap_circle}")
 

@@ -18,27 +18,42 @@ circle_var:
     - STG
     - PROD
     minimun_available_count: 4
-  # elpis:
-  #   user_name: jerry_he@trendmicro.com
-  #   org: infinite-wars
-  #   project: v1-epp-saas-1.0
-  #   provision_pipeline_id: 21
-  #   rg_dtl_name: rg-testing-env-lab
-  #   stage_list:
-  #   - TEST
-  #   - INT
-  #   - STG
-  #   - PROD
-  #   minimun_available_count: 4
-  # snorlax:
-  #   user_name: jerry_he@trendmicro.com
-  #   org: infinite-wars
-  #   project: v1-epp-saas-1.0
-  #   provision_pipeline_id: 21
-  #   rg_dtl_name: rg-testing-env-lab
-  #   stage_list:
-  #   - TEST
-  #   - INT
-  #   - STG
-  #   - PROD
-  #   minimun_available_count: 4
+    ap_id_list:
+    - 121
+    - 122
+    - 123
+    - 124
+  elpis:
+    user_name: jerry_he@trendmicro.com
+    org: infinite-wars
+    project: v1-epp-saas-1.0
+    provision_pipeline_id: 21
+    rg_dtl_name: rg-testing-env-lab
+    stage_list:
+    - TEST
+    - INT
+    - STG
+    - PROD
+    minimun_available_count: 4
+    ap_id_list:
+    - 125
+    - 126
+    - 127
+    - 128
+  snorlax:
+    user_name: jerry_he@trendmicro.com
+    org: infinite-wars
+    project: v1-epp-saas-1.0
+    provision_pipeline_id: 21
+    rg_dtl_name: rg-testing-env-lab
+    stage_list:
+    - TEST
+    - INT
+    - STG
+    - PROD
+    minimun_available_count: 4
+    ap_id_list:
+    - 129
+    - 130
+    - 131
+    - 132
