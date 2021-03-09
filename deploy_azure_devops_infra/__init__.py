@@ -13,27 +13,25 @@ class InfraUtil(object):
     def __init__(self, circle_name):
         self.user_name = load_global_params_config()['circle_var'][circle_name]['user_name']
         self.az_pat = os.getenv('AZ_PAT')
+        self.stage_list = load_global_params_config()['circle_var'][circle_name]['stage_list']
         self.task_agent = TaskAgent(self.user_name, self.az_pat)
+        self.ap_circle = []
+        self.ap_id = {}
+        self.dg_circle = []
+        self.dg_id = {}
 
     def generate_circle_deployment_pool_name(self, circle):
-        self.dg_circle = ["DG-" + circle.upper() + "-INT",
-                          "DG-" + circle.upper() + "-DEV",
-                          "DG-" + circle.upper() + "-STG",
-                          "DG-" + circle.upper() + "-PROD"]
-        self.dg_id = []
+        for stage in self.stage_list:
+            self.dg_circle.append("DG-" + circle.upper() + "-" + stage)
         logging.info(f"Deployment group name: {self.dg_circle}")
 
     def generate_circle_agent_pool_name(self, circle):
-        self.ap_circle = ["AP-" + circle.upper() + "-INT",
-                          "AP-" + circle.upper() + "-DEV",
-                          "AP-" + circle.upper() + "-STG",
-                          "AP-" + circle.upper() + "-PROD"]
-        self.ap_id = []
+        for stage in self.stage_list:
+            self.ap_circle.append("AP-" + circle.upper() + "-" + stage)
         logging.info(f"Agent pool name: {self.ap_circle}")
 
     def create_deployment_group(self, circle):
         for dg in self.dg_circle:
-            # deployment group create params
             dg_cp = DeploymentGroupCreateParameter(name=dg)
 
             try:
@@ -55,7 +53,7 @@ class InfraUtil(object):
             try:
                 r = self.task_agent.task_agent.add_agent_pool(ap_params)
                 logging.info(f"circle: {circle}, ap: {ap}, ap_id: {r.id}")
-                self.ap_id.append(r.id)
+                self.ap_id[ap.split("-")[-1]] = r.id
                 self.update_ap_id_yaml(circle)
 
             except AzureDevOpsServiceError as e:

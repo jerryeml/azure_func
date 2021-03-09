@@ -19,10 +19,10 @@ circle_var:
     - PROD
     minimun_available_count: 4
     ap_id_list:
-    - 121
-    - 122
-    - 123
-    - 124
+      INT: 146
+      PROD: 148
+      STG: 147
+      TEST: 145
   elpis:
     user_name: jerry_he@trendmicro.com
     org: infinite-wars
@@ -36,10 +36,10 @@ circle_var:
     - PROD
     minimun_available_count: 4
     ap_id_list:
-    - 125
-    - 126
-    - 127
-    - 128
+      INT: 150
+      PROD: 152
+      STG: 151
+      TEST: 149
   snorlax:
     user_name: jerry_he@trendmicro.com
     org: infinite-wars
@@ -53,7 +53,7 @@ circle_var:
     - PROD
     minimun_available_count: 4
     ap_id_list:
-    - 129
-    - 130
-    - 131
-    - 132
+      INT: 154
+      PROD: 156
+      STG: 155
+      TEST: 153
