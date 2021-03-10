@@ -123,7 +123,7 @@ class MonitorUtil(object):
                     'isSecret': False,
                     'value': stage.lower()
                 },
-                rg_dtl_name:
+                'rg_dtl_name':
                 {
                     'isSecret': False,
                     'value': rg_dtl_name.lower()
