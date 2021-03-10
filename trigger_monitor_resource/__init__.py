@@ -90,7 +90,7 @@ class MonitorUtil(object):
             if available_agent_count <= self.minimun_available_count:
                 logging.info(f"available agent count: {available_agent_count} less than minimun_count:{self.minimun_available_count}, do provision")
                 provision = True
-                self.trigger_provision_job(env.lower())
+                self.trigger_provision_job(env)
             else:
                 logging.info(f"available agent count: {available_agent_count}, no need provision")
                 provision = False
@@ -99,7 +99,7 @@ class MonitorUtil(object):
                                      "available count": available_agent_count, "minimun count": self.minimun_available_count, "provision": provision}
             self.circe_status.append(self.circe_env_status)
 
-    def trigger_provision_job(self, stage):
+    def trigger_provision_job(self, stage: str, rg_dtl_name: str):
         """
         trigger provision vm in specific dev test lab
         """
@@ -121,7 +121,12 @@ class MonitorUtil(object):
                 'env':
                 {
                     'isSecret': False,
-                    'value': stage
+                    'value': stage.lower()
+                },
+                rg_dtl_name:
+                {
+                    'isSecret': False,
+                    'value': rg_dtl_name.lower()
                 }
             }
         }
