@@ -90,7 +90,7 @@ class MonitorUtil(object):
             if available_agent_count <= self.minimun_available_count:
                 logging.info(f"available agent count: {available_agent_count} less than minimun_count:{self.minimun_available_count}, do provision")
                 provision = True
-                self.trigger_provision_job(env)
+                self.trigger_provision_job(env.lower())
             else:
                 logging.info(f"available agent count: {available_agent_count}, no need provision")
                 provision = False
