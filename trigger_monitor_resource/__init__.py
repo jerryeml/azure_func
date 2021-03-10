@@ -90,15 +90,14 @@ class MonitorUtil(object):
             if available_agent_count <= self.minimun_available_count:
                 logging.info(f"available agent count: {available_agent_count} less than minimun_count:{self.minimun_available_count}, do provision")
                 provision = True
-                # self.trigger_provision_job(env)
+                self.trigger_provision_job(env)
             else:
                 logging.info(f"available agent count: {available_agent_count}, no need provision")
                 provision = False
-            
-            self.circe_env_status = {"circle": self.circle_name, "env": env, "agent pool": ap_id,
-                                     "agent": each, "available count": available_agent_count, "minimun count": self.minimun_available_count, "provision": provision}
-            self.circe_status.append(self.circe_env_status)
 
+            self.circe_env_status = {"circle": self.circle_name, "env": env, "agent pool": ap_id,
+                                     "available count": available_agent_count, "minimun count": self.minimun_available_count, "provision": provision}
+            self.circe_status.append(self.circe_env_status)
 
     def trigger_provision_job(self, stage):
         """
@@ -144,7 +143,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             logging.info(f"Circle: {circle}, Function complete: {monitor_circle.circe_status}")
             api_response.append(monitor_circle.circe_status)
-        return func.HttpResponse(f"This HTTP triggered function executed successfully. {api_response}")
+        return func.HttpResponse(f"This HTTP triggered function executed successfully.\r\n {api_response}")
 
     except Exception as e:
         return func.HttpResponse(f"Meet Error {e}.", status_code=500)

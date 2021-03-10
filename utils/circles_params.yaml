@@ -22,7 +22,7 @@ circle_var:
     - PROD
     minimun_available_count: 4
     ap_id_list:
-      INT: 146
-      PROD: 148
-      STG: 147
-      TEST: 145
+      INT: 158
+      PROD: 160
+      STG: 159
+      TEST: 157
