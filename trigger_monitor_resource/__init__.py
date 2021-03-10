@@ -43,7 +43,7 @@ class MonitorUtil(object):
 
                 if available_vm_count < self.minimun_available_count:
                     logging.info(f"Circle: {self.circle_name}, dtl name: {dtl_name}, available agent count: {available_vm_count} is less than minimun_count:{self.minimun_available_count}, do provision")
-                    self.trigger_provision_job(stage)
+                    self.trigger_provision_job(stage, self.rg_dtl_name)
                 else:
                     logging.info(f"Circle: {self.circle_name}, dtl name: {dtl_name}, available agent count: {available_vm_count}, no need provision")
 
