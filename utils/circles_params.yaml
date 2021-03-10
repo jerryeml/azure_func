@@ -12,6 +12,9 @@ circle_var:
     project: v1-epp-saas-1.0
     provision_pipeline_id: 21
     rg_dtl_name: rg-testing-env-lab
+    os_type:
+    - win10
+    - win16
     stage_list:
     - TEST
     - INT
@@ -23,37 +26,3 @@ circle_var:
       PROD: 148
       STG: 147
       TEST: 145
-  # elpis:
-  #   user_name: jerry_he@trendmicro.com
-  #   org: infinite-wars
-  #   project: v1-epp-saas-1.0
-  #   provision_pipeline_id: 21
-  #   rg_dtl_name: rg-testing-env-lab
-  #   stage_list:
-  #   - TEST
-  #   - INT
-  #   - STG
-  #   - PROD
-  #   minimun_available_count: 4
-  #   ap_id_list:
-  #     INT: 150
-  #     PROD: 152
-  #     STG: 151
-  #     TEST: 149
-  # snorlax:
-  #   user_name: jerry_he@trendmicro.com
-  #   org: infinite-wars
-  #   project: v1-epp-saas-1.0
-  #   provision_pipeline_id: 21
-  #   rg_dtl_name: rg-testing-env-lab
-  #   stage_list:
-  #   - TEST
-  #   - INT
-  #   - STG
-  #   - PROD
-  #   minimun_available_count: 4
-  #   ap_id_list:
-  #     INT: 154
-  #     PROD: 156
-  #     STG: 155
-  #     TEST: 153

@@ -19,8 +19,12 @@ class MonitorUtil(object):
         self.sp_pwd = os.getenv('SP_PWD')
         self.tenant_id = os.getenv('TENANT_ID')
         self.rg_dtl_name = load_global_params_config()['circle_var'][circle_name]['rg_dtl_name']
-        self.minimun_available_count = load_global_params_config()['circle_var'][circle_name]['minimun_available_count']
+        self.os_type_list = load_global_params_config()['circle_var'][circle_name]['os_type']
+        self.minimun_available_count = load_global_params_config()['circle_var'][circle_name]['minimun_available_count'] * len(self.os_type_list)
         self.stage_list = load_global_params_config()['circle_var'][circle_name]['stage_list']
+        self.circe_status = []
+        self.circe_env_status = {"circle": "", "env": "", "agent pool": "",
+                                 "agent": "", "available count": "", "minimun count": "", "provision": ""}
 
     def monitor_vm_in_dtl(self):
         """
@@ -76,16 +80,25 @@ class MonitorUtil(object):
 
         for env, ap_id in self.ap_id_list.items():
             result = self.task_agent.get_agent_pool_agents(ap_id)
+            logging.info(f"Get {env} agents in agent pool: {ap_id} return: {result}")
             available_agent_count = 0
             for each in result:
-                if "available" in each.tags and "online" in each.agent.status:
+                logging.debug(f"Circle: {self.circle_name}, env: {env}, agent pool: {ap_id}, agent: {each}")
+                if "online" in each.status:
                     available_agent_count += 1
-
+    
             if available_agent_count <= self.minimun_available_count:
-                logging.info(f"Circle: {self.circle_name}, env: {env}, agent pool: {ap_id}, less than minimun_count:{self.minimun_available_count}, do provision")
-                self.trigger_provision_job(env)
+                logging.info(f"available agent count: {available_agent_count} less than minimun_count:{self.minimun_available_count}, do provision")
+                provision = True
+                # self.trigger_provision_job(env)
             else:
-                logging.info(f"Circle: {self.circle_name}, env: {env}, agent pool: {ap_id}, available agent count: {available_agent_count}, no need provision")
+                logging.info(f"available agent count: {available_agent_count}, no need provision")
+                provision = False
+            
+            self.circe_env_status = {"circle": self.circle_name, "env": env, "agent pool": ap_id,
+                                     "agent": each, "available count": available_agent_count, "minimun count": self.minimun_available_count, "provision": provision}
+            self.circe_status.append(self.circe_env_status)
+
 
     def trigger_provision_job(self, stage):
         """
@@ -104,7 +117,7 @@ class MonitorUtil(object):
                 'vm_count':
                 {
                     'isSecret': False,
-                    'value': self.minimun_available_count
+                    'value': self.minimun_available_count // len(self.os_type_list)
                 },
                 'env':
                 {
@@ -120,6 +133,7 @@ class MonitorUtil(object):
 def main(req: func.HttpRequest) -> func.HttpResponse:
     load_dotenv()
     circle_list = list(load_global_params_config()['circle_var'].keys())
+    api_response = []
     logging.info(f'Python HTTP trigger function processed a request. circle: {circle_list}')
 
     try:
@@ -128,9 +142,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             monitor_circle = MonitorUtil(circle)
             monitor_circle.monitor_az_agent_in_ag()
 
-            logging.info(f"Circle: {circle}, Function complete")
-
-        return func.HttpResponse(f"This HTTP triggered function executed successfully.")
+            logging.info(f"Circle: {circle}, Function complete: {monitor_circle.circe_status}")
+            api_response.append(monitor_circle.circe_status)
+        return func.HttpResponse(f"This HTTP triggered function executed successfully. {api_response}")
 
     except Exception as e:
         return func.HttpResponse(f"Meet Error {e}.", status_code=500)
